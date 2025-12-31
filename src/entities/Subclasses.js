@@ -114,6 +114,9 @@ export class Mage extends Character {
 
         // Draw Fire Shield
         if (this.shieldActive) {
+            ctx.save();
+            ctx.shadowColor = "orange";
+            ctx.shadowBlur = 20;
             ctx.strokeStyle = "orange";
             ctx.lineWidth = 5;
             ctx.beginPath();
@@ -128,6 +131,7 @@ export class Mage extends Character {
 
             ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
             ctx.fill();
+            ctx.restore();
         }
 
         // Draw Cooldown Indicator (small bar below health)
@@ -233,6 +237,9 @@ export class Warrior extends Character {
         super.draw(ctx);
         // Draw Whirlwind visual
         if (this.isAttacking) {
+            ctx.save();
+            ctx.shadowColor = "orange";
+            ctx.shadowBlur = 20;
             ctx.strokeStyle = "rgba(255, 165, 0, 0.8)";
             ctx.lineWidth = 5;
             ctx.beginPath();
@@ -244,7 +251,9 @@ export class Warrior extends Character {
                 Math.PI * 2
             );
             ctx.stroke();
+            ctx.restore();
         }
+
         // Draw Dash Cooldown
         if (this.dashCooldown > 0) {
             ctx.fillStyle = "cyan";
@@ -355,6 +364,9 @@ export class Knight extends Character {
         super.draw(ctx);
         if (this.isDefending) {
             // Draw Shield Wall
+            ctx.save();
+            ctx.shadowColor = "cyan";
+            ctx.shadowBlur = 20;
             ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
             ctx.fillRect(
                 this.x - 10,
@@ -363,12 +375,14 @@ export class Knight extends Character {
                 this.height + 20
             );
             ctx.strokeStyle = "white";
+            ctx.lineWidth = 2;
             ctx.strokeRect(
                 this.x - 10,
                 this.y - 10,
                 this.width + 20,
                 this.height + 20
             );
+            ctx.restore();
         }
     }
 }

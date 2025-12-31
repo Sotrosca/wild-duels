@@ -232,12 +232,24 @@ export class Character {
         }
         this.health -= damage;
         if (this.health < 0) this.health = 0;
+
+        // Visual Feedback
+        this.hitFlash = 5; // Flash white for 5 frames
     }
 
     draw(ctx) {
         // Draw Body
         ctx.fillStyle = this.color;
+        if (this.hitFlash > 0) {
+            ctx.fillStyle = "white";
+            this.hitFlash--;
+        }
+
+        // Shadow/Glow
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
         ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.shadowBlur = 0; // Reset
         // Draw Direction Indicator (Eyes)
         ctx.fillStyle = "white";
         const eyeSize = 5;

@@ -1,5 +1,6 @@
 import { Elf, Knight, Mage, Warrior } from "./entities/Subclasses.js";
 import { InputHandler } from "./utils/InputHandler.js";
+import { Particle } from "./utils/Particle.js";
 
 export class Game {
     constructor(canvas) {
@@ -10,10 +11,12 @@ export class Game {
 
         this.input = new InputHandler();
         this.projectiles = [];
-        this.platforms = []; // Could add platforms later
+        this.particles = [];
+        this.obstacles = [];
 
-        this.gameState = "SELECTION"; // SELECTION, PLAYING, GAME_OVER
+        this.gameState = "TITLE"; // TITLE, SELECTION, PLAYING, GAME_OVER
         this.winner = null;
+        this.screenShake = 0;
 
         this.player1 = null;
         this.player2 = null;
@@ -21,6 +24,7 @@ export class Game {
         // Selection State
         this.classes = [Warrior, Mage, Elf, Knight];
         this.classNames = ["Warrior", "Mage", "Elf", "Knight"];
+        this.classColors = ["orange", "purple", "green", "blue"];
         this.p1SelectionIndex = 0;
         this.p2SelectionIndex = 0;
         this.p1Selected = false;
@@ -43,7 +47,12 @@ export class Game {
     }
 
     update(timestamp) {
-        if (this.gameState === "SELECTION") {
+        if (this.gameState === "TITLE") {
+            if (this.input.isDown("Enter") || this.input.isDown("Space")) {
+                this.gameState = "SELECTION";
+                this.lastInputTime = timestamp; // Prevent accidental selection
+            }
+        } else if (this.gameState === "SELECTION") {
             this.handleSelectionInput(timestamp);
         } else if (this.gameState === "PLAYING") {
             this.updateGame();
@@ -143,6 +152,12 @@ export class Game {
     }
 
     updateGame() {
+        // Screen Shake Decay
+        if (this.screenShake > 0) {
+            this.screenShake *= 0.9;
+            if (this.screenShake < 0.5) this.screenShake = 0;
+        }
+
         // Update Players
         this.player1.update(
             this.input,
@@ -169,19 +184,49 @@ export class Game {
                 this.width,
                 this.height,
                 this.obstacles,
-                p.owner === this.player1 ? this.player2 : this.player1
+                p.owner === this.player1 ? this.player2 : this.player1,
+                this
             )
         );
         this.projectiles = this.projectiles.filter((p) => !p.markedForDeletion);
+
+        // Update Particles
+        this.particles.forEach((p) => p.update());
+        this.particles = this.particles.filter((p) => !p.markedForDeletion);
 
         // Check Win Condition
         if (this.player1.health <= 0) {
             this.winner = "Player 2";
             this.gameState = "GAME_OVER";
+            this.createExplosion(
+                this.player1.x + this.player1.width / 2,
+                this.player1.y + this.player1.height / 2,
+                this.player1.color,
+                50
+            );
         } else if (this.player2.health <= 0) {
             this.winner = "Player 1";
             this.gameState = "GAME_OVER";
+            this.createExplosion(
+                this.player2.x + this.player2.width / 2,
+                this.player2.y + this.player2.height / 2,
+                this.player2.color,
+                50
+            );
         }
+    }
+
+    createExplosion(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+            const velocity = {
+                x: (Math.random() - 0.5) * 10,
+                y: (Math.random() - 0.5) * 10,
+            };
+            this.particles.push(
+                new Particle(x, y, Math.random() * 4 + 2, color, velocity)
+            );
+        }
+        this.screenShake = 10;
     }
 
     resetGame() {
@@ -196,7 +241,9 @@ export class Game {
         this.ctx.fillStyle = "#222";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        if (this.gameState === "SELECTION") {
+        if (this.gameState === "TITLE") {
+            this.drawTitleScreen();
+        } else if (this.gameState === "SELECTION") {
             this.drawSelectionScreen();
         } else if (
             this.gameState === "PLAYING" ||
@@ -209,65 +256,133 @@ export class Game {
         }
     }
 
-    drawSelectionScreen() {
-        this.ctx.fillStyle = "white";
-        this.ctx.font = "30px Arial";
+    drawTitleScreen() {
+        this.ctx.fillStyle = "#111";
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        this.ctx.save();
         this.ctx.textAlign = "center";
+
+        // Title Glow
+        this.ctx.shadowColor = "#0ff";
+        this.ctx.shadowBlur = 20;
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "80px 'Orbitron', sans-serif";
+        this.ctx.fillText("WILD DUELS", this.width / 2, this.height / 2 - 50);
+
+        // Subtitle
+        this.ctx.shadowBlur = 0;
+        this.ctx.fillStyle = "#aaa";
+        this.ctx.font = "20px 'Orbitron', sans-serif";
+        this.ctx.fillText(
+            "PRESS ENTER TO START",
+            this.width / 2,
+            this.height / 2 + 50
+        );
+
+        this.ctx.restore();
+    }
+
+    drawSelectionScreen() {
+        this.ctx.save();
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "40px 'Orbitron', sans-serif";
+        this.ctx.textAlign = "center";
+        this.ctx.shadowColor = "#fff";
+        this.ctx.shadowBlur = 10;
         this.ctx.fillText("CHARACTER SELECTION", this.width / 2, 100);
+        this.ctx.shadowBlur = 0;
 
         // P1 Selection UI
         this.ctx.textAlign = "center";
+        this.ctx.fillStyle = "#0ff"; // Cyan for P1
+        this.ctx.font = "30px 'Orbitron', sans-serif";
         this.ctx.fillText(
             `Player 1: ${this.classNames[this.p1SelectionIndex]}`,
             this.width * 0.25,
             300
         );
 
-        this.ctx.font = "20px Arial";
-        if (this.p1Selected)
-            this.ctx.fillText("(READY)", this.width * 0.25, 350);
-        else
+        this.ctx.font = "16px 'Orbitron', sans-serif";
+        this.ctx.fillStyle = "#aaa";
+        if (this.p1Selected) {
+            this.ctx.fillStyle = "#0f0";
+            this.ctx.fillText("READY", this.width * 0.25, 350);
+        } else {
             this.ctx.fillText(
                 "(A/D: Select, F: Confirm)",
                 this.width * 0.25,
                 350
             );
+        }
 
         // P2 Selection UI
-        this.ctx.font = "30px Arial";
+        this.ctx.fillStyle = "#f0f"; // Magenta for P2
+        this.ctx.font = "30px 'Orbitron', sans-serif";
         this.ctx.fillText(
             `Player 2: ${this.classNames[this.p2SelectionIndex]}`,
             this.width * 0.75,
             300
         );
 
-        this.ctx.font = "20px Arial";
-        if (this.p2Selected)
-            this.ctx.fillText("(READY)", this.width * 0.75, 350);
-        else
+        this.ctx.font = "16px 'Orbitron', sans-serif";
+        this.ctx.fillStyle = "#aaa";
+        if (this.p2Selected) {
+            this.ctx.fillStyle = "#0f0";
+            this.ctx.fillText("READY", this.width * 0.75, 350);
+        } else {
             this.ctx.fillText(
                 "(Arrows: Select, K: Confirm)",
                 this.width * 0.75,
                 350
             );
+        }
+        this.ctx.restore();
     }
 
     drawGame() {
-        // Draw Floor/Background
-        this.ctx.fillStyle = "#333"; // Darker ground
+        // Draw Floor/Background with Grid
+        this.ctx.fillStyle = "#111";
         this.ctx.fillRect(0, 0, this.width, this.height);
+
+        // Grid
+        this.ctx.strokeStyle = "#222";
+        this.ctx.lineWidth = 2;
+        const gridSize = 50;
+        for (let x = 0; x <= this.width; x += gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.height);
+            this.ctx.stroke();
+        }
+        for (let y = 0; y <= this.height; y += gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.width, y);
+            this.ctx.stroke();
+        }
 
         // Draw Slow Zones
         this.slowZones.forEach((zone) => {
             this.ctx.fillStyle = zone.color;
+            this.ctx.globalAlpha = 0.3;
             this.ctx.fillRect(zone.x, zone.y, zone.width, zone.height);
+            this.ctx.globalAlpha = 1.0;
+            this.ctx.strokeStyle = zone.color;
+            this.ctx.strokeRect(zone.x, zone.y, zone.width, zone.height);
         });
 
         // Draw Obstacles
         this.obstacles.forEach((obs) => {
             this.ctx.fillStyle = obs.color;
+            this.ctx.shadowColor = obs.color;
+            this.ctx.shadowBlur = 5;
             this.ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            this.ctx.shadowBlur = 0;
         });
+
+        // Draw Particles
+        this.particles.forEach((p) => p.draw(this.ctx));
 
         // Draw Players
         this.player1.draw(this.ctx);
@@ -281,40 +396,66 @@ export class Game {
     }
 
     drawHUD() {
-        this.ctx.fillStyle = "white";
-        this.ctx.font = "20px Arial";
+        this.ctx.save();
+        this.ctx.font = "20px 'Orbitron', sans-serif";
 
-        // P1 Health
-        this.ctx.textAlign = "left";
-        this.ctx.fillText(`P1: ${Math.ceil(this.player1.health)}`, 20, 30);
-
-        // P2 Health
-        this.ctx.textAlign = "right";
-        this.ctx.fillText(
-            `P2: ${Math.ceil(this.player2.health)}`,
-            this.width - 20,
-            30
+        // P1 Health Bar
+        const p1HealthPercent = Math.max(
+            0,
+            this.player1.health / this.player1.maxHealth
         );
+        this.ctx.fillStyle = "#333";
+        this.ctx.fillRect(20, 20, 200, 20);
+        this.ctx.fillStyle = "#0ff";
+        this.ctx.fillRect(20, 20, 200 * p1HealthPercent, 20);
+        this.ctx.strokeStyle = "#fff";
+        this.ctx.strokeRect(20, 20, 200, 20);
+        this.ctx.fillStyle = "#fff";
+        this.ctx.textAlign = "left";
+        this.ctx.fillText(`P1`, 20, 15);
+
+        // P2 Health Bar
+        const p2HealthPercent = Math.max(
+            0,
+            this.player2.health / this.player2.maxHealth
+        );
+        this.ctx.fillStyle = "#333";
+        this.ctx.fillRect(this.width - 220, 20, 200, 20);
+        this.ctx.fillStyle = "#f0f";
+        this.ctx.fillRect(this.width - 220, 20, 200 * p2HealthPercent, 20);
+        this.ctx.strokeStyle = "#fff";
+        this.ctx.strokeRect(this.width - 220, 20, 200, 20);
+        this.ctx.fillStyle = "#fff";
+        this.ctx.textAlign = "right";
+        this.ctx.fillText(`P2`, this.width - 20, 15);
+
+        this.ctx.restore();
     }
 
     drawGameOver() {
-        this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
+        this.ctx.save();
         this.ctx.fillStyle = "white";
-        this.ctx.font = "50px Arial";
+        this.ctx.font = "60px 'Orbitron', sans-serif";
         this.ctx.textAlign = "center";
+        this.ctx.shadowColor = this.winner === "Player 1" ? "#0ff" : "#f0f";
+        this.ctx.shadowBlur = 20;
         this.ctx.fillText(
             `${this.winner} WINS!`,
             this.width / 2,
             this.height / 2
         );
+        this.ctx.restore();
 
-        this.ctx.font = "20px Arial";
+        this.ctx.fillStyle = "#aaa";
+        this.ctx.font = "20px 'Orbitron', sans-serif";
+        this.ctx.textAlign = "center";
         this.ctx.fillText(
             "Press SPACE to Restart",
             this.width / 2,
-            this.height / 2 + 50
+            this.height / 2 + 60
         );
     }
 }
