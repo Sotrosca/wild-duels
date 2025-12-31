@@ -132,6 +132,20 @@ export class Mage extends Character {
             ctx.arc(ox, oy, 5, 0, Math.PI * 2);
             ctx.fill();
         }
+
+        // Glowing Eyes (Direction Indicator)
+        ctx.fillStyle = "white";
+        let ex = 0,
+            ey = 0;
+        if (this.facing === "right") ex = 8;
+        else if (this.facing === "left") ex = -8;
+        else if (this.facing === "up") ey = -8;
+        else if (this.facing === "down") ey = 8;
+
+        ctx.beginPath();
+        ctx.arc(cx + ex, cy + ey, 4, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.shadowBlur = 0;
     }
 
@@ -283,6 +297,19 @@ export class Warrior extends Character {
             10
         );
 
+        // Visor (Direction Indicator)
+        ctx.fillStyle = "#00ffff";
+        if (this.facing === "right") {
+            ctx.fillRect(this.x + this.width - 5, this.y + 15, 5, 15);
+        } else if (this.facing === "left") {
+            ctx.fillRect(this.x, this.y + 15, 5, 15);
+        } else if (this.facing === "up") {
+            ctx.fillRect(this.x + 15, this.y, 20, 5);
+        } else {
+            // down
+            ctx.fillRect(this.x + 15, this.y + this.height - 5, 20, 5);
+        }
+
         ctx.shadowBlur = 0;
     }
 
@@ -397,28 +424,41 @@ export class Elf extends Character {
         ctx.shadowBlur = 15;
         ctx.fillStyle = this.color;
 
-        // Central Diamond
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Rotate based on facing
+        let angle = 0;
+        if (this.facing === "right") angle = Math.PI / 2;
+        else if (this.facing === "left") angle = -Math.PI / 2;
+        else if (this.facing === "down") angle = Math.PI;
+        // up is 0 (default)
+
+        ctx.rotate(angle);
+
+        // Central Diamond (Relative to 0,0)
         ctx.beginPath();
-        ctx.moveTo(cx, cy - 15);
-        ctx.lineTo(cx + 10, cy);
-        ctx.lineTo(cx, cy + 15);
-        ctx.lineTo(cx - 10, cy);
+        ctx.moveTo(0, -15);
+        ctx.lineTo(10, 0);
+        ctx.lineTo(0, 15);
+        ctx.lineTo(-10, 0);
         ctx.closePath();
         ctx.fill();
 
         // Floating Wings (Triangles)
         ctx.beginPath();
-        ctx.moveTo(cx - 15, cy - 5 + bob);
-        ctx.lineTo(cx - 25, cy + bob);
-        ctx.lineTo(cx - 15, cy + 5 + bob);
+        ctx.moveTo(-15, -5 + bob);
+        ctx.lineTo(-25, bob);
+        ctx.lineTo(-15, 5 + bob);
         ctx.fill();
 
         ctx.beginPath();
-        ctx.moveTo(cx + 15, cy - 5 + bob);
-        ctx.lineTo(cx + 25, cy + bob);
-        ctx.lineTo(cx + 15, cy + 5 + bob);
+        ctx.moveTo(15, -5 + bob);
+        ctx.lineTo(25, bob);
+        ctx.lineTo(15, 5 + bob);
         ctx.fill();
 
+        ctx.restore();
         ctx.shadowBlur = 0;
     }
 }
@@ -455,21 +495,37 @@ export class Knight extends Character {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
 
-        // Shield Shape
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Rotate based on facing
+        let angle = 0;
+        if (this.facing === "right") angle = -Math.PI / 2;
+        else if (this.facing === "left") angle = Math.PI / 2;
+        else if (this.facing === "up") angle = Math.PI;
+        // down is 0 (default for shield shape pointing down)
+
+        ctx.rotate(angle);
+
+        // Shield Shape (Relative to 0,0)
+        const w = this.width;
+        const h = this.height;
+
         ctx.beginPath();
-        ctx.moveTo(this.x, this.y); // Top Left
-        ctx.lineTo(this.x + this.width, this.y); // Top Right
-        ctx.lineTo(this.x + this.width, this.y + this.height * 0.6); // Side Right
-        ctx.lineTo(cx, this.y + this.height); // Bottom Point
-        ctx.lineTo(this.x, this.y + this.height * 0.6); // Side Left
+        ctx.moveTo(-w / 2, -h / 2); // Top Left
+        ctx.lineTo(w / 2, -h / 2); // Top Right
+        ctx.lineTo(w / 2, h * 0.1); // Side Right
+        ctx.lineTo(0, h / 2); // Bottom Point
+        ctx.lineTo(-w / 2, h * 0.1); // Side Left
         ctx.closePath();
         ctx.fill();
 
         // Cross Detail
         ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-        ctx.fillRect(cx - 5, this.y + 10, 10, this.height - 30);
-        ctx.fillRect(this.x + 10, cy - 10, this.width - 20, 10);
+        ctx.fillRect(-5, -h / 2 + 10, 10, h - 30);
+        ctx.fillRect(-w / 2 + 10, -10, w - 20, 10);
 
+        ctx.restore();
         ctx.shadowBlur = 0;
     }
 
