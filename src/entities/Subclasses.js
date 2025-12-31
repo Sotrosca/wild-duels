@@ -109,6 +109,32 @@ export class Mage extends Character {
         game.projectiles.push(projectile);
     }
 
+    drawBody(ctx) {
+        const cx = this.x + this.width / 2;
+        const cy = this.y + this.height / 2;
+        const time = this.animTimer * 0.1;
+
+        // Pulsing Core
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 15 + Math.sin(time) * 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Orbiting Orbs
+        for (let i = 0; i < 3; i++) {
+            const angle = time + (i * (Math.PI * 2)) / 3;
+            const ox = cx + Math.cos(angle) * 25;
+            const oy = cy + Math.sin(angle) * 25;
+            
+            ctx.beginPath();
+            ctx.arc(ox, oy, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+    }
+
     draw(ctx) {
         super.draw(ctx);
 
@@ -233,6 +259,28 @@ export class Warrior extends Character {
         }
     }
 
+    drawBody(ctx) {
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = this.color;
+
+        // Main Body (Heavy Block)
+        ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, this.height - 10);
+
+        // Breathing Armor Plates
+        const breath = Math.sin(this.animTimer * 0.1) * 2;
+        
+        // Shoulders
+        ctx.fillRect(this.x - 2, this.y + breath, 10, 20);
+        ctx.fillRect(this.x + this.width - 8, this.y + breath, 10, 20);
+
+        // Center Core
+        ctx.fillStyle = "#ffaa00";
+        ctx.fillRect(this.x + this.width/2 - 5, this.y + this.height/2 - 5, 10, 10);
+        
+        ctx.shadowBlur = 0;
+    }
+
     draw(ctx) {
         super.draw(ctx);
         // Draw Whirlwind visual
@@ -334,6 +382,40 @@ export class Elf extends Character {
             game.projectiles.push(projectile);
         });
     }
+
+    drawBody(ctx) {
+        const cx = this.x + this.width / 2;
+        const cy = this.y + this.height / 2;
+        const bob = Math.sin(this.animTimer * 0.2) * 3;
+
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = this.color;
+
+        // Central Diamond
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 15);
+        ctx.lineTo(cx + 10, cy);
+        ctx.lineTo(cx, cy + 15);
+        ctx.lineTo(cx - 10, cy);
+        ctx.closePath();
+        ctx.fill();
+
+        // Floating Wings (Triangles)
+        ctx.beginPath();
+        ctx.moveTo(cx - 15, cy - 5 + bob);
+        ctx.lineTo(cx - 25, cy + bob);
+        ctx.lineTo(cx - 15, cy + 5 + bob);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(cx + 15, cy - 5 + bob);
+        ctx.lineTo(cx + 25, cy + bob);
+        ctx.lineTo(cx + 15, cy + 5 + bob);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+    }
 }
 
 export class Knight extends Character {
@@ -358,6 +440,32 @@ export class Knight extends Character {
             this.defenseStat = 0.2; // Passive armor
             this.isDefending = false;
         }
+    }
+
+    drawBody(ctx) {
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = this.color;
+
+        const cx = this.x + this.width / 2;
+        const cy = this.y + this.height / 2;
+
+        // Shield Shape
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y); // Top Left
+        ctx.lineTo(this.x + this.width, this.y); // Top Right
+        ctx.lineTo(this.x + this.width, this.y + this.height * 0.6); // Side Right
+        ctx.lineTo(cx, this.y + this.height); // Bottom Point
+        ctx.lineTo(this.x, this.y + this.height * 0.6); // Side Left
+        ctx.closePath();
+        ctx.fill();
+
+        // Cross Detail
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.fillRect(cx - 5, this.y + 10, 10, this.height - 30);
+        ctx.fillRect(this.x + 10, cy - 10, this.width - 20, 10);
+
+        ctx.shadowBlur = 0;
     }
 
     draw(ctx) {

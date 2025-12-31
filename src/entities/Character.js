@@ -38,9 +38,13 @@ export class Character {
             height: 50,
             offset: { x: 0, y: 0 },
         };
+
+        // Animation
+        this.animTimer = 0;
     }
 
     update(input, gameWidth, gameHeight, obstacles, slowZones, enemy, game) {
+        this.animTimer++;
         this.handleInput(input, game);
         this.applyPhysics(gameWidth, gameHeight, obstacles, slowZones);
         this.updateAttackBox();
@@ -238,64 +242,22 @@ export class Character {
     }
 
     draw(ctx) {
-        // Draw Body
-        ctx.fillStyle = this.color;
+        ctx.save();
+        
+        // Hit Flash Effect
         if (this.hitFlash > 0) {
+            ctx.globalCompositeOperation = "source-over";
             ctx.fillStyle = "white";
             this.hitFlash--;
+        } else {
+            ctx.fillStyle = this.color;
         }
 
-        // Shadow/Glow
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 15;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.shadowBlur = 0; // Reset
-        // Draw Direction Indicator (Eyes)
-        ctx.fillStyle = "white";
-        const eyeSize = 5;
-        if (this.facing === "right") {
-            ctx.fillRect(
-                this.x + this.width - 10,
-                this.y + 10,
-                eyeSize,
-                eyeSize
-            );
-            ctx.fillRect(
-                this.x + this.width - 10,
-                this.y + this.height - 15,
-                eyeSize,
-                eyeSize
-            );
-        } else if (this.facing === "left") {
-            ctx.fillRect(this.x + 5, this.y + 10, eyeSize, eyeSize);
-            ctx.fillRect(
-                this.x + 5,
-                this.y + this.height - 15,
-                eyeSize,
-                eyeSize
-            );
-        } else if (this.facing === "up") {
-            ctx.fillRect(this.x + 10, this.y + 5, eyeSize, eyeSize);
-            ctx.fillRect(
-                this.x + this.width - 15,
-                this.y + 5,
-                eyeSize,
-                eyeSize
-            );
-        } else if (this.facing === "down") {
-            ctx.fillRect(
-                this.x + 10,
-                this.y + this.height - 10,
-                eyeSize,
-                eyeSize
-            );
-            ctx.fillRect(
-                this.x + this.width - 15,
-                this.y + this.height - 10,
-                eyeSize,
-                eyeSize
-            );
-        }
+        // Draw the specific character shape
+        this.drawBody(ctx);
+
+        ctx.restore();
+
         // Draw Attack Box (Debug/Visual)
         if (this.isAttacking && !this.isRanged) {
             ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
@@ -330,4 +292,29 @@ export class Character {
             5
         );
     }
+
+    drawBody(ctx) {
+        // Default implementation (Rectangle)
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
+        if (this.hitFlash > 0) ctx.fillStyle = "white";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.shadowBlur = 0;
+
+        // Eyes
+        ctx.fillStyle = "white";
+        const eyeSize = 5;
+        if (this.facing === "right") {
+            ctx.fillRect(this.x + this.width - 10, this.y + 10, eyeSize, eyeSize);
+            ctx.fillRect(this.x + this.width - 10, this.y + this.height - 15, eyeSize, eyeSize);
+        } else if (this.facing === "left") {
+            ctx.fillRect(this.x + 5, this.y + 10, eyeSize, eyeSize);
+            ctx.fillRect(this.x + 5, this.y + this.height - 15, eyeSize, eyeSize);
+        } else if (this.facing === "up") {
+            ctx.fillRect(this.x + 10, this.y + 5, eyeSize, eyeSize);
+            ctx.fillRect(this.x + this.width - 15, this.y + 5, eyeSize, eyeSize);
+        } else if (this.facing === "down") {
+            ctx.fillRect(this.x + 10, this.y + this.height - 10, eyeSize, eyeSize);
+            ctx.fillRect(this.x + this.width - 15, this.y + this.height - 10, eyeSize, eyeSize);
+        }
 }
