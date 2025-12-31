@@ -243,7 +243,7 @@ export class Character {
 
     draw(ctx) {
         ctx.save();
-        
+
         // Hit Flash Effect
         if (this.hitFlash > 0) {
             ctx.globalCompositeOperation = "source-over";
@@ -304,17 +304,33 @@ export class Character {
         // Eyes
         ctx.fillStyle = "white";
         const eyeSize = 5;
+
+        let eyeX1, eyeY1, eyeX2, eyeY2;
+
         if (this.facing === "right") {
-            ctx.fillRect(this.x + this.width - 10, this.y + 10, eyeSize, eyeSize);
-            ctx.fillRect(this.x + this.width - 10, this.y + this.height - 15, eyeSize, eyeSize);
+            eyeX1 = this.x + this.width - 10;
+            eyeY1 = this.y + 10;
+            eyeX2 = this.x + this.width - 10;
+            eyeY2 = this.y + this.height - 15;
         } else if (this.facing === "left") {
-            ctx.fillRect(this.x + 5, this.y + 10, eyeSize, eyeSize);
-            ctx.fillRect(this.x + 5, this.y + this.height - 15, eyeSize, eyeSize);
+            eyeX1 = this.x + 5;
+            eyeY1 = this.y + 10;
+            eyeX2 = this.x + 5;
+            eyeY2 = this.y + this.height - 15;
         } else if (this.facing === "up") {
-            ctx.fillRect(this.x + 10, this.y + 5, eyeSize, eyeSize);
-            ctx.fillRect(this.x + this.width - 15, this.y + 5, eyeSize, eyeSize);
-        } else if (this.facing === "down") {
-            ctx.fillRect(this.x + 10, this.y + this.height - 10, eyeSize, eyeSize);
-            ctx.fillRect(this.x + this.width - 15, this.y + this.height - 10, eyeSize, eyeSize);
+            eyeX1 = this.x + 10;
+            eyeY1 = this.y + 5;
+            eyeX2 = this.x + this.width - 15;
+            eyeY2 = this.y + 5;
+        } else {
+            // down
+            eyeX1 = this.x + 10;
+            eyeY1 = this.y + this.height - 10;
+            eyeX2 = this.x + this.width - 15;
+            eyeY2 = this.y + this.height - 10;
         }
+
+        ctx.fillRect(eyeX1, eyeY1, eyeSize, eyeSize);
+        ctx.fillRect(eyeX2, eyeY2, eyeSize, eyeSize);
+    }
 }
