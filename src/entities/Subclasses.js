@@ -127,7 +127,7 @@ export class Mage extends Character {
             const angle = time + (i * (Math.PI * 2)) / 3;
             const ox = cx + Math.cos(angle) * 25;
             const oy = cy + Math.sin(angle) * 25;
-            
+
             ctx.beginPath();
             ctx.arc(ox, oy, 5, 0, Math.PI * 2);
             ctx.fill();
@@ -269,15 +269,20 @@ export class Warrior extends Character {
 
         // Breathing Armor Plates
         const breath = Math.sin(this.animTimer * 0.1) * 2;
-        
+
         // Shoulders
         ctx.fillRect(this.x - 2, this.y + breath, 10, 20);
         ctx.fillRect(this.x + this.width - 8, this.y + breath, 10, 20);
 
         // Center Core
         ctx.fillStyle = "#ffaa00";
-        ctx.fillRect(this.x + this.width/2 - 5, this.y + this.height/2 - 5, 10, 10);
-        
+        ctx.fillRect(
+            this.x + this.width / 2 - 5,
+            this.y + this.height / 2 - 5,
+            10,
+            10
+        );
+
         ctx.shadowBlur = 0;
     }
 
