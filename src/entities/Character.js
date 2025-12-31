@@ -81,6 +81,10 @@ export class Character {
             this.attack(game);
         }
 
+        this.handleDefense(input);
+    }
+
+    handleDefense(input) {
         // Defend
         this.isDefending = input.isDown(this.controls.defend);
     }

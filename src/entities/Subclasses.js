@@ -7,9 +7,64 @@ export class Mage extends Character {
         this.type = "Mage";
         this.maxHealth = 80;
         this.health = this.maxHealth;
-        this.attackPower = 15;
+        this.attackPower = 20; // Increased for Fireball
         this.speed = 5;
         this.isRanged = true;
+
+        // Shield Stats
+        this.shieldActive = false;
+        this.shieldTimer = 0;
+        this.shieldMaxTime = 60; // 1 second (60 frames)
+        this.shieldCooldown = 0;
+        this.shieldMaxCooldown = 180; // 3 seconds
+    }
+
+    update(input, gameWidth, gameHeight, obstacles, slowZones, enemy, game) {
+        super.update(
+            input,
+            gameWidth,
+            gameHeight,
+            obstacles,
+            slowZones,
+            enemy,
+            game
+        );
+
+        // Shield Timer
+        if (this.shieldActive) {
+            this.shieldTimer--;
+            if (this.shieldTimer <= 0) {
+                this.shieldActive = false;
+                this.shieldCooldown = this.shieldMaxCooldown;
+            }
+        }
+
+        // Cooldown Timer
+        if (this.shieldCooldown > 0) {
+            this.shieldCooldown--;
+        }
+    }
+
+    handleDefense(input) {
+        // Activate Shield if key pressed, not active, and not on cooldown
+        if (
+            input.isDown(this.controls.defend) &&
+            !this.shieldActive &&
+            this.shieldCooldown <= 0
+        ) {
+            this.shieldActive = true;
+            this.shieldTimer = this.shieldMaxTime;
+        }
+        // Mage does not use standard continuous defense
+        this.isDefending = false;
+    }
+
+    takeDamage(amount) {
+        if (this.shieldActive) {
+            // Shield absorbs all damage
+            return;
+        }
+        super.takeDamage(amount);
     }
 
     attack(game) {
@@ -20,22 +75,22 @@ export class Mage extends Character {
 
         switch (this.facing) {
             case "right":
-                velocity.x = 10;
+                velocity.x = 12;
                 startX += this.width;
                 startY += 20;
                 break;
             case "left":
-                velocity.x = -10;
+                velocity.x = -12;
                 startX -= 20;
                 startY += 20;
                 break;
             case "up":
-                velocity.y = -10;
+                velocity.y = -12;
                 startX += 10;
                 startY -= 20;
                 break;
             case "down":
-                velocity.y = 10;
+                velocity.y = 12;
                 startX += 10;
                 startY += this.height;
                 break;
@@ -45,13 +100,45 @@ export class Mage extends Character {
             startX,
             startY,
             velocity,
-            20,
-            20,
-            "violet",
+            25, // Larger fireball
+            25,
+            "orange", // Fire color
             this.attackPower,
             this
         );
         game.projectiles.push(projectile);
+    }
+
+    draw(ctx) {
+        super.draw(ctx);
+
+        // Draw Fire Shield
+        if (this.shieldActive) {
+            ctx.strokeStyle = "orange";
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.arc(
+                this.x + this.width / 2,
+                this.y + this.height / 2,
+                50,
+                0,
+                Math.PI * 2
+            );
+            ctx.stroke();
+
+            ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
+            ctx.fill();
+        }
+
+        // Draw Cooldown Indicator (small bar below health)
+        if (this.shieldCooldown > 0) {
+            ctx.fillStyle = "gray";
+            ctx.fillRect(this.x, this.y - 30, this.width, 5);
+            ctx.fillStyle = "yellow";
+            const cooldownPct =
+                1 - this.shieldCooldown / this.shieldMaxCooldown;
+            ctx.fillRect(this.x, this.y - 30, this.width * cooldownPct, 5);
+        }
     }
 }
 
