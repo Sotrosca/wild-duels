@@ -1,6 +1,75 @@
 import { Character } from "./Character.js";
 import { Projectile } from "./Projectile.js";
 
+class Fireball extends Projectile {
+    drawShape(ctx) {
+        const time = Date.now() * 0.01;
+
+        // Outer Glow
+        ctx.shadowColor = "red";
+        ctx.shadowBlur = 15;
+
+        // Main Core
+        ctx.fillStyle = "orange";
+        ctx.beginPath();
+        ctx.arc(0, 0, this.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner Core
+        ctx.fillStyle = "yellow";
+        ctx.beginPath();
+        ctx.arc(0, 0, this.width / 4 + Math.sin(time) * 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Particles/Flames
+        ctx.fillStyle = "rgba(255, 69, 0, 0.5)";
+        for (let i = 0; i < 3; i++) {
+            const angle = (i * Math.PI * 2) / 3 + time;
+            ctx.beginPath();
+            ctx.arc(
+                Math.cos(angle) * 10,
+                Math.sin(angle) * 10,
+                5,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+    }
+}
+
+class Arrow extends Projectile {
+    drawShape(ctx) {
+        ctx.shadowColor = "lightgreen";
+        ctx.shadowBlur = 5;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+
+        // Shaft
+        ctx.beginPath();
+        ctx.moveTo(-this.width / 2, 0);
+        ctx.lineTo(this.width / 2, 0);
+        ctx.stroke();
+
+        // Head
+        ctx.fillStyle = "lightgreen";
+        ctx.beginPath();
+        ctx.moveTo(this.width / 2, 0);
+        ctx.lineTo(this.width / 2 - 10, -5);
+        ctx.lineTo(this.width / 2 - 10, 5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Fletching
+        ctx.beginPath();
+        ctx.moveTo(-this.width / 2, 0);
+        ctx.lineTo(-this.width / 2 - 5, -5);
+        ctx.lineTo(-this.width / 2 - 5, 5);
+        ctx.closePath();
+        ctx.fill();
+    }
+}
+
 export class Mage extends Character {
     constructor(x, y, controls) {
         super(x, y, 40, 60, "purple", controls);
@@ -96,7 +165,7 @@ export class Mage extends Character {
                 break;
         }
 
-        const projectile = new Projectile(
+        const projectile = new Fireball(
             startX,
             startY,
             velocity,
@@ -310,6 +379,29 @@ export class Warrior extends Character {
             ctx.fillRect(this.x + 15, this.y + this.height - 5, 20, 5);
         }
 
+        // Sword
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        if (this.isAttacking) {
+            ctx.rotate(this.animTimer * 0.5);
+        } else {
+            let angle = 0;
+            if (this.facing === "right") angle = 0;
+            else if (this.facing === "left") angle = Math.PI;
+            else if (this.facing === "up") angle = -Math.PI / 2;
+            else angle = Math.PI / 2;
+            ctx.rotate(angle + 0.5); // Slight offset for idle
+        }
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "white";
+        ctx.fillStyle = "#ddd";
+        ctx.fillRect(20, -3, 35, 6); // Blade
+        ctx.fillStyle = "#888";
+        ctx.fillRect(15, -10, 5, 20); // Guard
+        ctx.fillStyle = "#552200";
+        ctx.fillRect(5, -3, 15, 6); // Handle
+        ctx.restore();
+
         ctx.shadowBlur = 0;
     }
 
@@ -401,7 +493,7 @@ export class Elf extends Character {
                     break;
             }
 
-            const projectile = new Projectile(
+            const projectile = new Arrow(
                 this.x + this.width / 2 - 7,
                 this.y + this.height / 2 - 7,
                 { x: vx, y: vy },
@@ -524,6 +616,37 @@ export class Knight extends Character {
         ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
         ctx.fillRect(-5, -h / 2 + 10, 10, h - 30);
         ctx.fillRect(-w / 2 + 10, -10, w - 20, 10);
+
+        // Mace/Hammer
+        ctx.save();
+        let maceAngle = 0.8;
+        if (this.isAttacking) maceAngle = Math.sin(this.animTimer * 0.5) * 1.5;
+        ctx.rotate(maceAngle);
+
+        ctx.fillStyle = "#555";
+        ctx.fillRect(10, -2, 30, 4); // Handle
+        ctx.fillStyle = "#333";
+        ctx.shadowColor = "black";
+        ctx.shadowBlur = 5;
+        ctx.beginPath();
+        ctx.arc(40, 0, 12, 0, Math.PI * 2); // Mace Head
+        ctx.fill();
+
+        // Spikes
+        ctx.fillStyle = "#777";
+        for (let i = 0; i < 8; i++) {
+            const sa = (i * Math.PI * 2) / 8;
+            ctx.beginPath();
+            ctx.arc(
+                40 + Math.cos(sa) * 12,
+                Math.sin(sa) * 12,
+                3,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+        ctx.restore();
 
         ctx.restore();
         ctx.shadowBlur = 0;

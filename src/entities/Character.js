@@ -258,15 +258,9 @@ export class Character {
 
         ctx.restore();
 
-        // Draw Attack Box (Debug/Visual)
+        // Draw Attack Visual (Melee)
         if (this.isAttacking && !this.isRanged) {
-            ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-            ctx.fillRect(
-                this.attackBox.position.x,
-                this.attackBox.position.y,
-                this.attackBox.width,
-                this.attackBox.height
-            );
+            this.drawMeleeAttack(ctx);
         }
 
         // Draw Shield/Defend visual
@@ -291,6 +285,29 @@ export class Character {
             this.width * (this.health / this.maxHealth),
             5
         );
+    }
+
+    drawMeleeAttack(ctx) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        ctx.shadowColor = "white";
+        ctx.shadowBlur = 10;
+
+        const bx = this.attackBox.position.x + this.attackBox.width / 2;
+        const by = this.attackBox.position.y + this.attackBox.height / 2;
+
+        ctx.beginPath();
+        if (this.facing === "right" || this.facing === "left") {
+            ctx.moveTo(bx, by - 20);
+            ctx.lineTo(bx, by + 20);
+        } else {
+            ctx.moveTo(bx - 20, by);
+            ctx.lineTo(bx + 20, by);
+        }
+        ctx.stroke();
+        ctx.restore();
     }
 
     drawBody(ctx) {
