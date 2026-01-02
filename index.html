@@ -10,7 +10,14 @@
     <body>
         <div id="game-container">
             <canvas id="gameCanvas" width="800" height="600"></canvas>
-            <div id="ui-layer"></div>
+            <div id="ui-layer">
+                <button id="pause-btn">Pause</button>
+                <div id="pause-menu" class="hidden">
+                    <h2>PAUSED</h2>
+                    <button id="resume-btn">Resume</button>
+                    <button id="selection-btn">Character Selection</button>
+                </div>
+            </div>
         </div>
         <script type="module" src="src/main.js"></script>
     </body>

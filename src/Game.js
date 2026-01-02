@@ -30,10 +30,44 @@ export class Game {
         this.p1Selected = false;
         this.p2Selected = false;
 
+        // UI Elements
+        this.pauseBtn = document.getElementById("pause-btn");
+        this.pauseMenu = document.getElementById("pause-menu");
+        this.resumeBtn = document.getElementById("resume-btn");
+        this.selectionBtn = document.getElementById("selection-btn");
+
+        this.pauseMenu.classList.add("hidden");
+        this.initUI();
+
         // Input Debounce for selection
         this.lastInputTime = 0;
 
         this.loop = this.loop.bind(this);
+    }
+
+    initUI() {
+        this.pauseBtn.addEventListener("click", () => this.togglePause());
+        this.resumeBtn.addEventListener("click", () => this.togglePause());
+        this.selectionBtn.addEventListener("click", () => this.goToSelection());
+    }
+
+    togglePause() {
+        if (this.gameState === "PLAYING") {
+            this.gameState = "PAUSED";
+            this.pauseMenu.classList.remove("hidden");
+        } else if (this.gameState === "PAUSED") {
+            this.gameState = "PLAYING";
+            this.pauseMenu.classList.add("hidden");
+        }
+    }
+
+    goToSelection() {
+        this.gameState = "SELECTION";
+        this.pauseMenu.classList.add("hidden");
+        this.p1Selected = false;
+        this.p2Selected = false;
+        this.player1 = null;
+        this.player2 = null;
     }
 
     start() {
@@ -47,6 +81,14 @@ export class Game {
     }
 
     update(timestamp) {
+        // Show/Hide Pause Button only during PLAYING or PAUSED
+        if (this.gameState === "PLAYING" || this.gameState === "PAUSED") {
+            this.pauseBtn.style.display = "block";
+        } else {
+            this.pauseBtn.style.display = "none";
+            this.pauseMenu.classList.add("hidden"); // Force hide menu if not in playing/paused
+        }
+
         if (this.gameState === "TITLE") {
             if (this.input.isDown("Enter") || this.input.isDown("Space")) {
                 this.gameState = "SELECTION";
@@ -55,7 +97,19 @@ export class Game {
         } else if (this.gameState === "SELECTION") {
             this.handleSelectionInput(timestamp);
         } else if (this.gameState === "PLAYING") {
+            if (this.input.isDown("KeyP")) {
+                this.togglePause();
+                this.lastInputTime = timestamp;
+            }
             this.updateGame();
+        } else if (this.gameState === "PAUSED") {
+            if (
+                this.input.isDown("KeyP") &&
+                timestamp - this.lastInputTime > 200
+            ) {
+                this.togglePause();
+                this.lastInputTime = timestamp;
+            }
         } else if (this.gameState === "GAME_OVER") {
             if (this.input.isDown("Space")) {
                 this.resetGame();
@@ -247,6 +301,7 @@ export class Game {
             this.drawSelectionScreen();
         } else if (
             this.gameState === "PLAYING" ||
+            this.gameState === "PAUSED" ||
             this.gameState === "GAME_OVER"
         ) {
             this.drawGame();
