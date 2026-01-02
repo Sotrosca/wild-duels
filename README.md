@@ -34,3 +34,6 @@ A 2D local multiplayer combat game built with HTML5 Canvas and Vanilla JavaScrip
     -   **Mage**: Low health, high attack, ranged projectile.
     -   **Elf**: High speed, ranged projectile.
     -   **Knight**: High health/defense, low speed, melee range.
+## Development
+
+If you want to add new characters or mechanics, please refer to the [CHARACTER_GUIDE.md](CHARACTER_GUIDE.md) for visual and technical standards.

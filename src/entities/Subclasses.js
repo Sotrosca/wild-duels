@@ -462,10 +462,9 @@ export class Elf extends Character {
         if (this.attackTimer > 0) return;
 
         this.isAttacking = true;
+        this.hasHit = false;
+        this.attackActiveTimer = 10; // Shorter visual for ranged
         this.attackTimer = this.cooldownTime;
-        setTimeout(() => {
-            this.isAttacking = false;
-        }, 100);
 
         const angles = [0, -0.3, 0.3]; // Radians spread
 

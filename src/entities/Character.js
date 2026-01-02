@@ -28,8 +28,10 @@ export class Character {
         this.facing = "down"; // 'up', 'down', 'left', 'right'
         this.attackCooldown = 0;
         this.attackTimer = 0;
+        this.attackActiveTimer = 0; // Frames the attack is visually active
         this.attackDuration = 20; // Frames
         this.cooldownTime = 40; // Frames
+        this.hasHit = false; // To prevent multiple hits in one swing
 
         // Hitbox for melee
         this.attackBox = {
@@ -202,17 +204,22 @@ export class Character {
 
     attack(game) {
         this.isAttacking = true;
+        this.hasHit = false;
+        this.attackActiveTimer = this.attackDuration;
         this.attackTimer = this.cooldownTime;
-        setTimeout(() => {
-            this.isAttacking = false;
-        }, 100); // Attack active for 100ms
     }
 
     handleCombat(enemy, game) {
         if (this.attackTimer > 0) this.attackTimer--;
+        if (this.attackActiveTimer > 0) {
+            this.attackActiveTimer--;
+            if (this.attackActiveTimer === 0) {
+                this.isAttacking = false;
+            }
+        }
 
         // Melee collision check (only if attacking and melee type)
-        if (this.isAttacking && !this.isRanged) {
+        if (this.isAttacking && !this.isRanged && !this.hasHit) {
             const hitBox = {
                 x: this.attackBox.position.x,
                 y: this.attackBox.position.y,
@@ -220,11 +227,10 @@ export class Character {
                 height: this.attackBox.height,
             };
 
-            if (Collision.checkAABB(hitBox, enemy) && this.isAttacking) {
-                // Ensure we only hit once per attack - simplified here by short duration
-                // In a robust engine, we'd track 'hasHit' flag per attack instance
+            if (Collision.checkAABB(hitBox, enemy)) {
                 enemy.takeDamage(this.attackPower);
-                this.isAttacking = false; // Disable hitbox after hit
+                this.hasHit = true;
+                // We don't set isAttacking = false here so the animation finishes
             }
         }
     }
