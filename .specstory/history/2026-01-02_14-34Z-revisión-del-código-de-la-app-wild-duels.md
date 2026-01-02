@@ -1520,7 +1520,7 @@ Todo está disponible en la rama `feature/composite-shapes`. ¡El juego ahora ti
 
 ---
 
-_**User (2026-01-02 17:47Z)**_
+_**User (2026-01-02 17:48Z)**_
 
 Ahora quiero arreglar algo, cuando los ataques impactan al enemigo no se ve la animacion del ataque
 
@@ -1528,7 +1528,310 @@ Ahora quiero arreglar algo, cuando los ataques impactan al enemigo no se ve la a
 
 _**Agent (model copilot/gemini-3-flash-preview)**_
 
+<tool-use data-tool-type="read" data-tool-name="copilot_readFile">
+<details>
+<summary>Tool use: **copilot_readFile** • Reading [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/src/entities/Character.js#1-1), lines 1 to 337</summary>
 
+
+Read [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/src/entities/Character.js#1-1), lines 1 to 337
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="copilot_replaceString">
+<details>
+<summary>Tool use: **copilot_replaceString**</summary>
+
+Additional data:
+
+```json
+{
+  "vscodeToolId": "copilot_replaceString",
+  "isHidden": true
+}
+```
+Result:
+
+```json
+{
+  "invocationMessage": "Using \"Replace String in File\"",
+  "isConfirmed": {
+    "type": 1
+  },
+  "content": "&#96;&#96;&#96;javascript\nActiveTimer = 0; // Frames the attack is visually active\r\n        this.attackDuration = 20; // Frames\r\n        this.cooldownTime = 40; // Frames\r\n        this.hasHit = false; // To prevent multiple hits in one swing\n&#96;&#96;&#96;\n\n",
+  "textEditContent": "ActiveTimer = 0; // Frames the attack is visually active\r\n        this.attackDuration = 20; // Frames\r\n        this.cooldownTime = 40; // Frames\r\n        this.hasHit = false; // To prevent multiple hits in one swing",
+  "toolCallResult": null
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="copilot_replaceString">
+<details>
+<summary>Tool use: **copilot_replaceString**</summary>
+
+Additional data:
+
+```json
+{
+  "vscodeToolId": "copilot_replaceString",
+  "isHidden": true
+}
+```
+Result:
+
+```json
+{
+  "invocationMessage": "Using \"Replace String in File\"",
+  "isConfirmed": {
+    "type": 1
+  },
+  "content": "&#96;&#96;&#96;javascript\nhasHit = false;\r\n        this.attackActiveTimer = this.attackDuration;\r\n        this.attackTimer = this.cooldownTime;\r\n    }\r\n\r\n    handleCombat(enemy, game) {\r\n        if (this.attackTimer &gt; 0) this.attackTimer--;\r\n        if (this.attackActiveTimer &gt; 0) {\r\n            this.attackActiveTimer--;\r\n            if (this.attackActiveTimer === 0) {\r\n                this.isAttacking = false;\r\n            }\r\n        }\r\n\r\n        // Melee collision check (only if attacking and melee type)\r\n        if (this.isAttacking &amp;&amp; !this.isRanged &amp;&amp; !this.hasHit) {\r\n            const hitBox = {\r\n                x: this.attackBox.position.x,\r\n                y: this.attackBox.position.y,\r\n                width: this.attackBox.width,\r\n                height: this.attackBox.height,\r\n            };\r\n\r\n            if (Collision.checkAABB(hitBox, enemy)) {\r\n                enemy.takeDamage(this.attackPower);\r\n                this.hasHit = true;\r\n                // We don't set isAttacking = false here so the animation finishes\n&#96;&#96;&#96;\n\n",
+  "textEditContent": "hasHit = false;\r\n        this.attackActiveTimer = this.attackDuration;\r\n        this.attackTimer = this.cooldownTime;\r\n    }\r\n\r\n    handleCombat(enemy, game) {\r\n        if (this.attackTimer &gt; 0) this.attackTimer--;\r\n        if (this.attackActiveTimer &gt; 0) {\r\n            this.attackActiveTimer--;\r\n            if (this.attackActiveTimer === 0) {\r\n                this.isAttacking = false;\r\n            }\r\n        }\r\n\r\n        // Melee collision check (only if attacking and melee type)\r\n        if (this.isAttacking &amp;&amp; !this.isRanged &amp;&amp; !this.hasHit) {\r\n            const hitBox = {\r\n                x: this.attackBox.position.x,\r\n                y: this.attackBox.position.y,\r\n                width: this.attackBox.width,\r\n                height: this.attackBox.height,\r\n            };\r\n\r\n            if (Collision.checkAABB(hitBox, enemy)) {\r\n                enemy.takeDamage(this.attackPower);\r\n                this.hasHit = true;\r\n                // We don't set isAttacking = false here so the animation finishes",
+  "toolCallResult": null
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="copilot_readFile">
+<details>
+<summary>Tool use: **copilot_readFile** • Reading [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/src/entities/Subclasses.js#400-400), lines 400 to 500</summary>
+
+
+Read [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/src/entities/Subclasses.js#400-400), lines 400 to 500
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="copilot_replaceString">
+<details>
+<summary>Tool use: **copilot_replaceString**</summary>
+
+Additional data:
+
+```json
+{
+  "vscodeToolId": "copilot_replaceString",
+  "isHidden": true
+}
+```
+Result:
+
+```json
+{
+  "invocationMessage": "Using \"Replace String in File\"",
+  "isConfirmed": {
+    "type": 1
+  },
+  "content": "&#96;&#96;&#96;javascript\nhasHit = false;\r\n        this.attackActiveTimer = 10; // Shorter visual for ranged\r\n        this.attackTimer = this.cooldownTime\n&#96;&#96;&#96;\n\n",
+  "textEditContent": "hasHit = false;\r\n        this.attackActiveTimer = 10; // Shorter visual for ranged\r\n        this.attackTimer = this.cooldownTime",
+  "toolCallResult": null
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+He corregido el problema de las animaciones que desaparecían al impactar. El error se debía a que el código desactivaba el estado de ataque (`isAttacking = false`) inmediatamente después de detectar una colisión para evitar múltiples golpes en un mismo frame.
+
+### Cambios realizados:
+
+1.  **Sistema de Temporizador por Frames**: He eliminado el uso de `setTimeout` (que no es preciso para juegos) y lo he sustituido por un contador de frames (`attackActiveTimer`).
+2.  **Nueva lógica de impacto (`hasHit`)**: He añadido una bandera `hasHit` que se activa cuando el ataque golpea al enemigo. Esto permite que:
+    *   El daño se aplique **solo una vez** por cada movimiento de ataque.
+    *   La animación continúe mostrándose durante toda su duración (`attackDuration`), incluso si ya ha impactado al rival.
+3.  **Sincronización en Subclases**: He actualizado al **Elfo** y al **Guerrero** para que utilicen este nuevo sistema de temporización, asegurando que sus animaciones de disparo y torbellino sean fluidas y consistentes.
+
+Ahora, cuando golpees a un enemigo, verás el tajo de la espada o el movimiento del mazo completarse correctamente en lugar de cortarse abruptamente.
+
+---
+
+_**User (2026-01-02 17:51Z)**_
+
+Bien, agreguemos una regla en el proyecto que explique cómo es el estilo del juego. De esta manera habrá un estandar para agregar nuevos personajes
+
+---
+
+_**Agent (model copilot/gemini-3-flash-preview)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="copilot_listDirectory">
+<details>
+<summary>Tool use: **copilot_listDirectory**</summary>
+
+
+Parameters:
+
+```json
+{
+  "file_path": "c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels",
+  "relativeWorkspacePath": "wild-duels"
+}
+```
+Additional data:
+
+```json
+{
+  "vscodeToolId": "copilot_listDirectory",
+  "isHidden": false
+}
+```
+Result:
+
+```json
+{
+  "invocationMessage": "Reading [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels)",
+  "pastTenseMessage": "Read [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels)",
+  "isConfirmed": {
+    "type": 1
+  },
+  "content": "",
+  "textEditContent": "",
+  "toolCallResult": null
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="copilot_createFile">
+<details>
+<summary>Tool use: **copilot_createFile**</summary>
+
+
+Parameters:
+
+```json
+{
+  "file_path": "c:\\Users\\facun\\Documents\\42\\Personal\\Desarrollo_Software\\Proyectos_Personales\\wild-duels\\CHARACTER_GUIDE.md",
+  "relativeWorkspacePath": "c:\\Users\\facun\\Documents\\42\\Personal\\Desarrollo_Software\\Proyectos_Personales\\wild-duels\\CHARACTER_GUIDE.md"
+}
+```
+Additional data:
+
+```json
+{
+  "vscodeToolId": "copilot_createFile",
+  "isHidden": false
+}
+```
+Result:
+
+```json
+{
+  "invocationMessage": "Creating [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/CHARACTER_GUIDE.md)",
+  "pastTenseMessage": "Created [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/CHARACTER_GUIDE.md)",
+  "isConfirmed": {
+    "type": 1
+  },
+  "content": "",
+  "textEditContent": "# Wild Duels: Character Design Guide\n\nThis document defines the standards for creating new characters and abilities in Wild Duels to maintain a consistent \"Neon-Composite\" aesthetic and balanced gameplay.\n\n## 1. Visual Aesthetic: Composite Shapes\n\nCharacters are not sprites; they are built using **Canvas API primitives**.\n\n### Core Principles:\n- **Geometric Construction**: Use &#96;rect&#96;, &#96;arc&#96;, &#96;beginPath&#96;, and &#96;lineTo&#96; to build the body and equipment.\n- **Neon Glow**: Every character must have a &#96;shadowBlur&#96; (usually 15-20px) matching their primary color.\n- **Directional Feedback**: Characters must visually indicate their &#96;facing&#96; direction (e.g., eyes, visors, or weapon orientation).\n- **Dynamic Breathing**: Use &#96;this.animTimer&#96; with &#96;Math.sin()&#96; to create \"breathing\" or pulsing effects in the &#96;drawBody&#96; method.\n\n### Example &#96;drawBody&#96; Pattern:\n&#96;&#96;&#96;javascript\ndrawBody(ctx) {\n    const breath = Math.sin(this.animTimer * 0.1) * 2;\n    ctx.shadowColor = this.color;\n    ctx.shadowBlur = 15;\n    \n    // Main Body\n    ctx.fillRect(this.x, this.y + breath, this.width, this.height);\n    \n    // Directional Eyes\n    ctx.fillStyle = \"white\";\n    // ... logic to position eyes based on this.facing\n}\n&#96;&#96;&#96;\n\n## 2. Gameplay Balance (The Triangle)\n\nNew characters should fit into the balance triangle: **Health vs. Speed vs. Range/Power**.\n\n| Archetype | Health | Speed | Attack Power | Range |\n| :--- | :--- | :--- | :--- | :--- |\n| **Tank** (Knight) | High (150) | Low (3) | High (25) | Melee |\n| **Glass Cannon** (Mage) | Low (80) | Mid (5) | High (20) | Ranged |\n| **Scout** (Elf) | Mid (90) | High (7) | Low (8) | Ranged (Multi) |\n| **Bruiser** (Warrior) | Mid (110) | Mid (5) | Mid (15) | Melee (AoE) |\n\n## 3. Code Structure\n\nAll characters must extend the &#96;Character&#96; class and implement:\n\n1.  **&#96;constructor&#96;**: Define stats and call &#96;super()&#96;.\n2.  **&#96;handleDefense(input)&#96;**: Define the unique defensive mechanic (Dash, Shield, Sprint, Invulnerability).\n3.  **&#96;drawBody(ctx)&#96;**: The unique visual representation.\n4.  **&#96;attack(game)&#96;**: (Optional) Override if the character has a unique attack pattern (like the Elf's triple shot).\n\n## 4. Weapon Standards\n\n- **Melee Weapons**: Should be drawn relative to the character's center and rotate based on &#96;isAttacking&#96; and &#96;facing&#96;.\n- **Projectiles**: Should extend &#96;Projectile&#96; or a custom subclass and implement &#96;drawShape(ctx)&#96; for unique visuals (e.g., &#96;Fireball&#96;, &#96;Arrow&#96;).\n\n## 5. Animation States\n\n- **Idle**: Subtle pulsing or breathing.\n- **Moving**: Can include slight bobbing.\n- **Attacking**: Fast rotation or translation of weapons.\n- **Defending**: Visual overlay (shields, aura) and state-specific changes (rooted, speed boost).\n- **Hit**: Handled by the base class &#96;hitFlash&#96; (white flash).\n",
+  "toolCallResult": null
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="copilot_replaceString">
+<details>
+<summary>Tool use: **copilot_replaceString**</summary>
+
+Additional data:
+
+```json
+{
+  "vscodeToolId": "copilot_replaceString",
+  "isHidden": true
+}
+```
+Result:
+
+```json
+{
+  "invocationMessage": "Using \"Replace String in File\"",
+  "isConfirmed": {
+    "type": 1
+  },
+  "content": "&#96;&#96;&#96;markdown\n## Development\r\n\r\nIf you want to add new characters or mechanics, please refer to the [CHARACTER_GUIDE.md](CHARACTER_GUIDE.md) for visual and technical standards.\r\n\n&#96;&#96;&#96;\n\n",
+  "textEditContent": "## Development\r\n\r\nIf you want to add new characters or mechanics, please refer to the [CHARACTER_GUIDE.md](CHARACTER_GUIDE.md) for visual and technical standards.\r\n",
+  "toolCallResult": null
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="copilot_createFile">
+<details>
+<summary>Tool use: **copilot_createFile**</summary>
+
+
+Parameters:
+
+```json
+{
+  "file_path": "c:\\Users\\facun\\Documents\\42\\Personal\\Desarrollo_Software\\Proyectos_Personales\\wild-duels\\.cursorrules",
+  "relativeWorkspacePath": "c:\\Users\\facun\\Documents\\42\\Personal\\Desarrollo_Software\\Proyectos_Personales\\wild-duels\\.cursorrules"
+}
+```
+Additional data:
+
+```json
+{
+  "vscodeToolId": "copilot_createFile",
+  "isHidden": false
+}
+```
+Result:
+
+```json
+{
+  "invocationMessage": "Creating [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/.cursorrules)",
+  "pastTenseMessage": "Created [](file:///c%3A/Users/facun/Documents/42/Personal/Desarrollo_Software/Proyectos_Personales/wild-duels/.cursorrules)",
+  "isConfirmed": {
+    "type": 1
+  },
+  "content": "",
+  "textEditContent": "# Wild Duels Project Rules\n\nWhen adding new characters, abilities, or modifying existing ones, follow these standards:\n\n## Visual Style (Composite Shapes)\n- NO SPRITES or external images. Use Canvas API primitives (&#96;rect&#96;, &#96;arc&#96;, &#96;lineTo&#96;).\n- Every entity must have a &#96;shadowBlur&#96; (15-20px) matching its theme color for a neon effect.\n- Use &#96;this.animTimer&#96; for all animations (breathing, pulsing, rotating).\n- Characters must have a clear visual indicator for the &#96;facing&#96; direction.\n\n## Character Architecture\n- All characters must extend &#96;Character&#96; from &#96;src/entities/Character.js&#96;.\n- Implement &#96;drawBody(ctx)&#96; for the character's unique look.\n- Implement &#96;handleDefense(input)&#96; for the unique defensive mechanic.\n- Melee weapons should be drawn in &#96;drawBody&#96; or &#96;draw&#96; and react to &#96;this.isAttacking&#96;.\n\n## Combat &amp; Physics\n- Use &#96;Collision.checkAABB&#96; for all hit detection.\n- Ranged attacks must use subclasses of &#96;Projectile&#96; with a custom &#96;drawShape(ctx)&#96;.\n- Melee attacks must use the &#96;hasHit&#96; flag to ensure one hit per swing while allowing the animation to finish.\n\n## Code Quality\n- Use ES6 Modules.\n- Keep logic in &#96;update()&#96; and visuals in &#96;draw()&#96;.\n- Maintain the balance triangle: Health vs. Speed vs. Power.\n",
+  "toolCallResult": null
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
 
 ---
 
