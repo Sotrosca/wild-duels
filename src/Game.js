@@ -68,6 +68,8 @@ export class Game {
         this.p2Selected = false;
         this.player1 = null;
         this.player2 = null;
+        this.previewP1 = null;
+        this.previewP2 = null;
     }
 
     start() {
@@ -378,48 +380,91 @@ export class Game {
         this.ctx.fillText("CHARACTER SELECTION", this.width / 2, 100);
         this.ctx.shadowBlur = 0;
 
+        // Update Previews
+        const p1Class = this.classes[this.p1SelectionIndex];
+        if (!this.previewP1 || this.previewP1.constructor !== p1Class) {
+            this.previewP1 = new p1Class(0, 300, null);
+            this.previewP1.x = this.width * 0.25 - this.previewP1.width / 2;
+        }
+        this.previewP1.animTimer++;
+
+        const p2Class = this.classes[this.p2SelectionIndex];
+        if (!this.previewP2 || this.previewP2.constructor !== p2Class) {
+            this.previewP2 = new p2Class(0, 300, null);
+            this.previewP2.x = this.width * 0.75 - this.previewP2.width / 2;
+            this.previewP2.facing = "left";
+        }
+        this.previewP2.animTimer++;
+
+        // Draw Previews
+        this.previewP1.draw(this.ctx);
+        this.previewP2.draw(this.ctx);
+
         // P1 Selection UI
         this.ctx.textAlign = "center";
+        
+        // Player Label
         this.ctx.fillStyle = "#0ff"; // Cyan for P1
-        this.ctx.font = "30px 'Orbitron', sans-serif";
+        this.ctx.font = "20px 'Orbitron', sans-serif";
+        this.ctx.fillText("PLAYER 1", this.width * 0.25, 180);
+
+        // Class Name
+        this.ctx.shadowColor = "#0ff";
+        this.ctx.shadowBlur = 15;
+        this.ctx.font = "bold 36px 'Orbitron', sans-serif";
         this.ctx.fillText(
-            `Player 1: ${this.classNames[this.p1SelectionIndex]}`,
+            this.classNames[this.p1SelectionIndex].toUpperCase(),
             this.width * 0.25,
-            300
+            230
         );
+        this.ctx.shadowBlur = 0;
 
         this.ctx.font = "16px 'Orbitron', sans-serif";
         this.ctx.fillStyle = "#aaa";
         if (this.p1Selected) {
             this.ctx.fillStyle = "#0f0";
-            this.ctx.fillText("READY", this.width * 0.25, 350);
+            this.ctx.shadowColor = "#0f0";
+            this.ctx.shadowBlur = 10;
+            this.ctx.fillText("READY", this.width * 0.25, 450);
+            this.ctx.shadowBlur = 0;
         } else {
             this.ctx.fillText(
                 "(A/D: Select, F: Confirm)",
                 this.width * 0.25,
-                350
+                450
             );
         }
 
         // P2 Selection UI
+        // Player Label
         this.ctx.fillStyle = "#f0f"; // Magenta for P2
-        this.ctx.font = "30px 'Orbitron', sans-serif";
+        this.ctx.font = "20px 'Orbitron', sans-serif";
+        this.ctx.fillText("PLAYER 2", this.width * 0.75, 180);
+
+        // Class Name
+        this.ctx.shadowColor = "#f0f";
+        this.ctx.shadowBlur = 15;
+        this.ctx.font = "bold 36px 'Orbitron', sans-serif";
         this.ctx.fillText(
-            `Player 2: ${this.classNames[this.p2SelectionIndex]}`,
+            this.classNames[this.p2SelectionIndex].toUpperCase(),
             this.width * 0.75,
-            300
+            230
         );
+        this.ctx.shadowBlur = 0;
 
         this.ctx.font = "16px 'Orbitron', sans-serif";
         this.ctx.fillStyle = "#aaa";
         if (this.p2Selected) {
             this.ctx.fillStyle = "#0f0";
-            this.ctx.fillText("READY", this.width * 0.75, 350);
+            this.ctx.shadowColor = "#0f0";
+            this.ctx.shadowBlur = 10;
+            this.ctx.fillText("READY", this.width * 0.75, 450);
+            this.ctx.shadowBlur = 0;
         } else {
             this.ctx.fillText(
                 "(Arrows: Select, K: Confirm)",
                 this.width * 0.75,
-                350
+                450
             );
         }
         this.ctx.restore();
