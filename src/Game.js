@@ -96,6 +96,14 @@ export class Game {
             }
         } else if (this.gameState === "SELECTION") {
             this.handleSelectionInput(timestamp);
+        } else if (this.gameState === "COUNTDOWN") {
+            if (timestamp - this.lastTime >= 1000) {
+                this.countdownTimer--;
+                this.lastTime = timestamp;
+                if (this.countdownTimer < 0) {
+                    this.gameState = "PLAYING";
+                }
+            }
         } else if (this.gameState === "PLAYING") {
             if (this.input.isDown("KeyP")) {
                 this.togglePause();
@@ -202,7 +210,9 @@ export class Game {
         ];
 
         this.projectiles = [];
-        this.gameState = "PLAYING";
+        this.gameState = "COUNTDOWN";
+        this.countdownTimer = 3;
+        this.lastTime = performance.now();
     }
 
     updateGame() {
@@ -300,15 +310,35 @@ export class Game {
         } else if (this.gameState === "SELECTION") {
             this.drawSelectionScreen();
         } else if (
+            this.gameState === "COUNTDOWN" ||
             this.gameState === "PLAYING" ||
             this.gameState === "PAUSED" ||
             this.gameState === "GAME_OVER"
         ) {
             this.drawGame();
-            if (this.gameState === "GAME_OVER") {
+            if (this.gameState === "COUNTDOWN") {
+                this.drawCountdown();
+            } else if (this.gameState === "GAME_OVER") {
                 this.drawGameOver();
             }
         }
+    }
+
+    drawCountdown() {
+        this.ctx.save();
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "100px 'Orbitron', sans-serif";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.shadowColor = "#fff";
+        this.ctx.shadowBlur = 20;
+
+        let text = this.countdownTimer > 0 ? this.countdownTimer : "FIGHT!";
+        this.ctx.fillText(text, this.width / 2, this.height / 2);
+        this.ctx.restore();
     }
 
     drawTitleScreen() {
