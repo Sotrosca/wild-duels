@@ -28,8 +28,10 @@ export class Character {
         this.facing = "down"; // 'up', 'down', 'left', 'right'
         this.attackCooldown = 0;
         this.attackTimer = 0;
+        this.attackActiveTimer = 0; // Frames the attack is visually active
         this.attackDuration = 20; // Frames
         this.cooldownTime = 40; // Frames
+        this.hasHit = false; // To prevent multiple hits in one swing
 
         // Hitbox for melee
         this.attackBox = {
@@ -38,9 +40,13 @@ export class Character {
             height: 50,
             offset: { x: 0, y: 0 },
         };
+
+        // Animation
+        this.animTimer = 0;
     }
 
     update(input, gameWidth, gameHeight, obstacles, slowZones, enemy, game) {
+        this.animTimer++;
         this.handleInput(input, game);
         this.applyPhysics(gameWidth, gameHeight, obstacles, slowZones);
         this.updateAttackBox();
@@ -54,20 +60,35 @@ export class Character {
         if (this.isAttacking) return; // Stop movement while attacking (optional style choice)
 
         // Movement
+        let dx = 0;
+        let dy = 0;
+
         if (input.isDown(this.controls.left)) {
             this.velocity.x = -this.speed;
-            this.facing = "left";
+            dx = -1;
         } else if (input.isDown(this.controls.right)) {
             this.velocity.x = this.speed;
-            this.facing = "right";
+            dx = 1;
         }
 
         if (input.isDown(this.controls.up)) {
             this.velocity.y = -this.speed;
-            this.facing = "up";
+            dy = -1;
         } else if (input.isDown(this.controls.down)) {
             this.velocity.y = this.speed;
-            this.facing = "down";
+            dy = 1;
+        }
+
+        // Update Facing
+        if (dx !== 0 || dy !== 0) {
+            if (dx === 1 && dy === 0) this.facing = "right";
+            else if (dx === -1 && dy === 0) this.facing = "left";
+            else if (dx === 0 && dy === -1) this.facing = "up";
+            else if (dx === 0 && dy === 1) this.facing = "down";
+            else if (dx === 1 && dy === -1) this.facing = "up-right";
+            else if (dx === -1 && dy === -1) this.facing = "up-left";
+            else if (dx === 1 && dy === 1) this.facing = "down-right";
+            else if (dx === -1 && dy === 1) this.facing = "down-left";
         }
 
         // Normalize diagonal movement
@@ -193,22 +214,51 @@ export class Character {
                 this.attackBox.position.x = this.x;
                 this.attackBox.position.y = this.y + this.height;
                 break;
+            case "up-right":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x + this.width;
+                this.attackBox.position.y = this.y - 25;
+                break;
+            case "up-left":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x - 50;
+                this.attackBox.position.y = this.y - 25;
+                break;
+            case "down-right":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x + this.width;
+                this.attackBox.position.y = this.y + this.height - 25;
+                break;
+            case "down-left":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x - 50;
+                this.attackBox.position.y = this.y + this.height - 25;
+                break;
         }
     }
 
     attack(game) {
         this.isAttacking = true;
+        this.hasHit = false;
+        this.attackActiveTimer = this.attackDuration;
         this.attackTimer = this.cooldownTime;
-        setTimeout(() => {
-            this.isAttacking = false;
-        }, 100); // Attack active for 100ms
     }
 
     handleCombat(enemy, game) {
         if (this.attackTimer > 0) this.attackTimer--;
+        if (this.attackActiveTimer > 0) {
+            this.attackActiveTimer--;
+            if (this.attackActiveTimer === 0) {
+                this.isAttacking = false;
+            }
+        }
 
         // Melee collision check (only if attacking and melee type)
-        if (this.isAttacking && !this.isRanged) {
+        if (this.isAttacking && !this.isRanged && !this.hasHit) {
             const hitBox = {
                 x: this.attackBox.position.x,
                 y: this.attackBox.position.y,
@@ -216,11 +266,10 @@ export class Character {
                 height: this.attackBox.height,
             };
 
-            if (Collision.checkAABB(hitBox, enemy) && this.isAttacking) {
-                // Ensure we only hit once per attack - simplified here by short duration
-                // In a robust engine, we'd track 'hasHit' flag per attack instance
+            if (Collision.checkAABB(hitBox, enemy)) {
                 enemy.takeDamage(this.attackPower);
-                this.isAttacking = false; // Disable hitbox after hit
+                this.hasHit = true;
+                // We don't set isAttacking = false here so the animation finishes
             }
         }
     }
@@ -238,73 +287,25 @@ export class Character {
     }
 
     draw(ctx) {
-        // Draw Body
-        ctx.fillStyle = this.color;
+        ctx.save();
+
+        // Hit Flash Effect
         if (this.hitFlash > 0) {
+            ctx.globalCompositeOperation = "source-over";
             ctx.fillStyle = "white";
             this.hitFlash--;
+        } else {
+            ctx.fillStyle = this.color;
         }
 
-        // Shadow/Glow
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 15;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.shadowBlur = 0; // Reset
-        // Draw Direction Indicator (Eyes)
-        ctx.fillStyle = "white";
-        const eyeSize = 5;
-        if (this.facing === "right") {
-            ctx.fillRect(
-                this.x + this.width - 10,
-                this.y + 10,
-                eyeSize,
-                eyeSize
-            );
-            ctx.fillRect(
-                this.x + this.width - 10,
-                this.y + this.height - 15,
-                eyeSize,
-                eyeSize
-            );
-        } else if (this.facing === "left") {
-            ctx.fillRect(this.x + 5, this.y + 10, eyeSize, eyeSize);
-            ctx.fillRect(
-                this.x + 5,
-                this.y + this.height - 15,
-                eyeSize,
-                eyeSize
-            );
-        } else if (this.facing === "up") {
-            ctx.fillRect(this.x + 10, this.y + 5, eyeSize, eyeSize);
-            ctx.fillRect(
-                this.x + this.width - 15,
-                this.y + 5,
-                eyeSize,
-                eyeSize
-            );
-        } else if (this.facing === "down") {
-            ctx.fillRect(
-                this.x + 10,
-                this.y + this.height - 10,
-                eyeSize,
-                eyeSize
-            );
-            ctx.fillRect(
-                this.x + this.width - 15,
-                this.y + this.height - 10,
-                eyeSize,
-                eyeSize
-            );
-        }
-        // Draw Attack Box (Debug/Visual)
+        // Draw the specific character shape
+        this.drawBody(ctx);
+
+        ctx.restore();
+
+        // Draw Attack Visual (Melee)
         if (this.isAttacking && !this.isRanged) {
-            ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-            ctx.fillRect(
-                this.attackBox.position.x,
-                this.attackBox.position.y,
-                this.attackBox.width,
-                this.attackBox.height
-            );
+            this.drawMeleeAttack(ctx);
         }
 
         // Draw Shield/Defend visual
@@ -329,5 +330,69 @@ export class Character {
             this.width * (this.health / this.maxHealth),
             5
         );
+    }
+
+    drawMeleeAttack(ctx) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        ctx.shadowColor = "white";
+        ctx.shadowBlur = 10;
+
+        const bx = this.attackBox.position.x + this.attackBox.width / 2;
+        const by = this.attackBox.position.y + this.attackBox.height / 2;
+
+        ctx.beginPath();
+        if (this.facing === "right" || this.facing === "left") {
+            ctx.moveTo(bx, by - 20);
+            ctx.lineTo(bx, by + 20);
+        } else {
+            ctx.moveTo(bx - 20, by);
+            ctx.lineTo(bx + 20, by);
+        }
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    drawBody(ctx) {
+        // Default implementation (Rectangle)
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
+        if (this.hitFlash > 0) ctx.fillStyle = "white";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.shadowBlur = 0;
+
+        // Eyes
+        ctx.fillStyle = "white";
+        const eyeSize = 5;
+
+        let eyeX1, eyeY1, eyeX2, eyeY2;
+
+        if (this.facing === "right") {
+            eyeX1 = this.x + this.width - 10;
+            eyeY1 = this.y + 10;
+            eyeX2 = this.x + this.width - 10;
+            eyeY2 = this.y + this.height - 15;
+        } else if (this.facing === "left") {
+            eyeX1 = this.x + 5;
+            eyeY1 = this.y + 10;
+            eyeX2 = this.x + 5;
+            eyeY2 = this.y + this.height - 15;
+        } else if (this.facing === "up") {
+            eyeX1 = this.x + 10;
+            eyeY1 = this.y + 5;
+            eyeX2 = this.x + this.width - 15;
+            eyeY2 = this.y + 5;
+        } else {
+            // down
+            eyeX1 = this.x + 10;
+            eyeY1 = this.y + this.height - 10;
+            eyeX2 = this.x + this.width - 15;
+            eyeY2 = this.y + this.height - 10;
+        }
+
+        ctx.fillRect(eyeX1, eyeY1, eyeSize, eyeSize);
+        ctx.fillRect(eyeX2, eyeY2, eyeSize, eyeSize);
     }
 }

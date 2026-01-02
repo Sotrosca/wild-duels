@@ -30,10 +30,46 @@ export class Game {
         this.p1Selected = false;
         this.p2Selected = false;
 
+        // UI Elements
+        this.pauseBtn = document.getElementById("pause-btn");
+        this.pauseMenu = document.getElementById("pause-menu");
+        this.resumeBtn = document.getElementById("resume-btn");
+        this.selectionBtn = document.getElementById("selection-btn");
+
+        this.pauseMenu.classList.add("hidden");
+        this.initUI();
+
         // Input Debounce for selection
         this.lastInputTime = 0;
 
         this.loop = this.loop.bind(this);
+    }
+
+    initUI() {
+        this.pauseBtn.addEventListener("click", () => this.togglePause());
+        this.resumeBtn.addEventListener("click", () => this.togglePause());
+        this.selectionBtn.addEventListener("click", () => this.goToSelection());
+    }
+
+    togglePause() {
+        if (this.gameState === "PLAYING") {
+            this.gameState = "PAUSED";
+            this.pauseMenu.classList.remove("hidden");
+        } else if (this.gameState === "PAUSED") {
+            this.gameState = "PLAYING";
+            this.pauseMenu.classList.add("hidden");
+        }
+    }
+
+    goToSelection() {
+        this.gameState = "SELECTION";
+        this.pauseMenu.classList.add("hidden");
+        this.p1Selected = false;
+        this.p2Selected = false;
+        this.player1 = null;
+        this.player2 = null;
+        this.previewP1 = null;
+        this.previewP2 = null;
     }
 
     start() {
@@ -47,6 +83,14 @@ export class Game {
     }
 
     update(timestamp) {
+        // Show/Hide Pause Button only during PLAYING or PAUSED
+        if (this.gameState === "PLAYING" || this.gameState === "PAUSED") {
+            this.pauseBtn.style.display = "block";
+        } else {
+            this.pauseBtn.style.display = "none";
+            this.pauseMenu.classList.add("hidden"); // Force hide menu if not in playing/paused
+        }
+
         if (this.gameState === "TITLE") {
             if (this.input.isDown("Enter") || this.input.isDown("Space")) {
                 this.gameState = "SELECTION";
@@ -54,8 +98,28 @@ export class Game {
             }
         } else if (this.gameState === "SELECTION") {
             this.handleSelectionInput(timestamp);
+        } else if (this.gameState === "COUNTDOWN") {
+            if (timestamp - this.lastTime >= 1000) {
+                this.countdownTimer--;
+                this.lastTime = timestamp;
+                if (this.countdownTimer < 0) {
+                    this.gameState = "PLAYING";
+                }
+            }
         } else if (this.gameState === "PLAYING") {
+            if (this.input.isDown("KeyP")) {
+                this.togglePause();
+                this.lastInputTime = timestamp;
+            }
             this.updateGame();
+        } else if (this.gameState === "PAUSED") {
+            if (
+                this.input.isDown("KeyP") &&
+                timestamp - this.lastInputTime > 200
+            ) {
+                this.togglePause();
+                this.lastInputTime = timestamp;
+            }
         } else if (this.gameState === "GAME_OVER") {
             if (this.input.isDown("Space")) {
                 this.resetGame();
@@ -148,7 +212,9 @@ export class Game {
         ];
 
         this.projectiles = [];
-        this.gameState = "PLAYING";
+        this.gameState = "COUNTDOWN";
+        this.countdownTimer = 3;
+        this.lastTime = performance.now();
     }
 
     updateGame() {
@@ -246,14 +312,35 @@ export class Game {
         } else if (this.gameState === "SELECTION") {
             this.drawSelectionScreen();
         } else if (
+            this.gameState === "COUNTDOWN" ||
             this.gameState === "PLAYING" ||
+            this.gameState === "PAUSED" ||
             this.gameState === "GAME_OVER"
         ) {
             this.drawGame();
-            if (this.gameState === "GAME_OVER") {
+            if (this.gameState === "COUNTDOWN") {
+                this.drawCountdown();
+            } else if (this.gameState === "GAME_OVER") {
                 this.drawGameOver();
             }
         }
+    }
+
+    drawCountdown() {
+        this.ctx.save();
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "100px 'Orbitron', sans-serif";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.shadowColor = "#fff";
+        this.ctx.shadowBlur = 20;
+
+        let text = this.countdownTimer > 0 ? this.countdownTimer : "FIGHT!";
+        this.ctx.fillText(text, this.width / 2, this.height / 2);
+        this.ctx.restore();
     }
 
     drawTitleScreen() {
@@ -290,51 +377,94 @@ export class Game {
         this.ctx.textAlign = "center";
         this.ctx.shadowColor = "#fff";
         this.ctx.shadowBlur = 10;
-        this.ctx.fillText("CHARACTER SELECTION", this.width / 2, 100);
+        this.ctx.fillText("CHARACTER SELECTION", this.width / 2, 80);
         this.ctx.shadowBlur = 0;
+
+        // Update Previews
+        const p1Class = this.classes[this.p1SelectionIndex];
+        if (!this.previewP1 || this.previewP1.constructor !== p1Class) {
+            this.previewP1 = new p1Class(0, 220, null);
+            this.previewP1.x = this.width * 0.25 - this.previewP1.width / 2;
+        }
+        this.previewP1.animTimer++;
+
+        const p2Class = this.classes[this.p2SelectionIndex];
+        if (!this.previewP2 || this.previewP2.constructor !== p2Class) {
+            this.previewP2 = new p2Class(0, 220, null);
+            this.previewP2.x = this.width * 0.75 - this.previewP2.width / 2;
+            this.previewP2.facing = "left";
+        }
+        this.previewP2.animTimer++;
+
+        // Draw Previews
+        this.previewP1.draw(this.ctx);
+        this.previewP2.draw(this.ctx);
 
         // P1 Selection UI
         this.ctx.textAlign = "center";
+
+        // Player Label
         this.ctx.fillStyle = "#0ff"; // Cyan for P1
-        this.ctx.font = "30px 'Orbitron', sans-serif";
+        this.ctx.font = "20px 'Orbitron', sans-serif";
+        this.ctx.fillText("PLAYER 1", this.width * 0.25, 150);
+
+        // Class Name
+        this.ctx.shadowColor = "#0ff";
+        this.ctx.shadowBlur = 20;
+        this.ctx.font = "bold 40px 'Orbitron', sans-serif";
         this.ctx.fillText(
-            `Player 1: ${this.classNames[this.p1SelectionIndex]}`,
+            this.classNames[this.p1SelectionIndex].toUpperCase(),
             this.width * 0.25,
-            300
+            350
         );
+        this.ctx.shadowBlur = 0;
 
         this.ctx.font = "16px 'Orbitron', sans-serif";
         this.ctx.fillStyle = "#aaa";
         if (this.p1Selected) {
             this.ctx.fillStyle = "#0f0";
-            this.ctx.fillText("READY", this.width * 0.25, 350);
+            this.ctx.shadowColor = "#0f0";
+            this.ctx.shadowBlur = 10;
+            this.ctx.fillText("READY", this.width * 0.25, 450);
+            this.ctx.shadowBlur = 0;
         } else {
             this.ctx.fillText(
                 "(A/D: Select, F: Confirm)",
                 this.width * 0.25,
-                350
+                450
             );
         }
 
         // P2 Selection UI
+        // Player Label
         this.ctx.fillStyle = "#f0f"; // Magenta for P2
-        this.ctx.font = "30px 'Orbitron', sans-serif";
+        this.ctx.font = "20px 'Orbitron', sans-serif";
+        this.ctx.fillText("PLAYER 2", this.width * 0.75, 150);
+
+        // Class Name
+        this.ctx.shadowColor = "#f0f";
+        this.ctx.shadowBlur = 20;
+        this.ctx.font = "bold 40px 'Orbitron', sans-serif";
         this.ctx.fillText(
-            `Player 2: ${this.classNames[this.p2SelectionIndex]}`,
+            this.classNames[this.p2SelectionIndex].toUpperCase(),
             this.width * 0.75,
-            300
+            350
         );
+        this.ctx.shadowBlur = 0;
 
         this.ctx.font = "16px 'Orbitron', sans-serif";
         this.ctx.fillStyle = "#aaa";
         if (this.p2Selected) {
             this.ctx.fillStyle = "#0f0";
-            this.ctx.fillText("READY", this.width * 0.75, 350);
+            this.ctx.shadowColor = "#0f0";
+            this.ctx.shadowBlur = 10;
+            this.ctx.fillText("READY", this.width * 0.75, 450);
+            this.ctx.shadowBlur = 0;
         } else {
             this.ctx.fillText(
                 "(Arrows: Select, K: Confirm)",
                 this.width * 0.75,
-                350
+                450
             );
         }
         this.ctx.restore();

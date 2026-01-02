@@ -70,10 +70,27 @@ export class Projectile {
 
     draw(ctx) {
         ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+
+        // Rotate based on velocity
+        const angle = Math.atan2(this.velocity.y, this.velocity.x);
+        ctx.rotate(angle);
+
+        this.drawShape(ctx);
+
+        ctx.restore();
+    }
+
+    drawShape(ctx) {
+        // Default: Glowing Rectangle
         ctx.shadowColor = this.color;
         ctx.shadowBlur = 10;
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.restore();
+        ctx.fillRect(
+            -this.width / 2,
+            -this.height / 2,
+            this.width,
+            this.height
+        );
     }
 }
