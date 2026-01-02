@@ -60,20 +60,35 @@ export class Character {
         if (this.isAttacking) return; // Stop movement while attacking (optional style choice)
 
         // Movement
+        let dx = 0;
+        let dy = 0;
+
         if (input.isDown(this.controls.left)) {
             this.velocity.x = -this.speed;
-            this.facing = "left";
+            dx = -1;
         } else if (input.isDown(this.controls.right)) {
             this.velocity.x = this.speed;
-            this.facing = "right";
+            dx = 1;
         }
 
         if (input.isDown(this.controls.up)) {
             this.velocity.y = -this.speed;
-            this.facing = "up";
+            dy = -1;
         } else if (input.isDown(this.controls.down)) {
             this.velocity.y = this.speed;
-            this.facing = "down";
+            dy = 1;
+        }
+
+        // Update Facing
+        if (dx !== 0 || dy !== 0) {
+            if (dx === 1 && dy === 0) this.facing = "right";
+            else if (dx === -1 && dy === 0) this.facing = "left";
+            else if (dx === 0 && dy === -1) this.facing = "up";
+            else if (dx === 0 && dy === 1) this.facing = "down";
+            else if (dx === 1 && dy === -1) this.facing = "up-right";
+            else if (dx === -1 && dy === -1) this.facing = "up-left";
+            else if (dx === 1 && dy === 1) this.facing = "down-right";
+            else if (dx === -1 && dy === 1) this.facing = "down-left";
         }
 
         // Normalize diagonal movement
@@ -198,6 +213,30 @@ export class Character {
                 this.attackBox.height = 50;
                 this.attackBox.position.x = this.x;
                 this.attackBox.position.y = this.y + this.height;
+                break;
+            case "up-right":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x + this.width;
+                this.attackBox.position.y = this.y - 25;
+                break;
+            case "up-left":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x - 50;
+                this.attackBox.position.y = this.y - 25;
+                break;
+            case "down-right":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x + this.width;
+                this.attackBox.position.y = this.y + this.height - 25;
+                break;
+            case "down-left":
+                this.attackBox.width = 50;
+                this.attackBox.height = 50;
+                this.attackBox.position.x = this.x - 50;
+                this.attackBox.position.y = this.y + this.height - 25;
                 break;
         }
     }

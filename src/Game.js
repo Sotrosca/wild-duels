@@ -377,20 +377,20 @@ export class Game {
         this.ctx.textAlign = "center";
         this.ctx.shadowColor = "#fff";
         this.ctx.shadowBlur = 10;
-        this.ctx.fillText("CHARACTER SELECTION", this.width / 2, 100);
+        this.ctx.fillText("CHARACTER SELECTION", this.width / 2, 80);
         this.ctx.shadowBlur = 0;
 
         // Update Previews
         const p1Class = this.classes[this.p1SelectionIndex];
         if (!this.previewP1 || this.previewP1.constructor !== p1Class) {
-            this.previewP1 = new p1Class(0, 300, null);
+            this.previewP1 = new p1Class(0, 220, null);
             this.previewP1.x = this.width * 0.25 - this.previewP1.width / 2;
         }
         this.previewP1.animTimer++;
 
         const p2Class = this.classes[this.p2SelectionIndex];
         if (!this.previewP2 || this.previewP2.constructor !== p2Class) {
-            this.previewP2 = new p2Class(0, 300, null);
+            this.previewP2 = new p2Class(0, 220, null);
             this.previewP2.x = this.width * 0.75 - this.previewP2.width / 2;
             this.previewP2.facing = "left";
         }
@@ -402,20 +402,20 @@ export class Game {
 
         // P1 Selection UI
         this.ctx.textAlign = "center";
-        
+
         // Player Label
         this.ctx.fillStyle = "#0ff"; // Cyan for P1
         this.ctx.font = "20px 'Orbitron', sans-serif";
-        this.ctx.fillText("PLAYER 1", this.width * 0.25, 180);
+        this.ctx.fillText("PLAYER 1", this.width * 0.25, 150);
 
         // Class Name
         this.ctx.shadowColor = "#0ff";
-        this.ctx.shadowBlur = 15;
-        this.ctx.font = "bold 36px 'Orbitron', sans-serif";
+        this.ctx.shadowBlur = 20;
+        this.ctx.font = "bold 40px 'Orbitron', sans-serif";
         this.ctx.fillText(
             this.classNames[this.p1SelectionIndex].toUpperCase(),
             this.width * 0.25,
-            230
+            350
         );
         this.ctx.shadowBlur = 0;
 
@@ -439,16 +439,16 @@ export class Game {
         // Player Label
         this.ctx.fillStyle = "#f0f"; // Magenta for P2
         this.ctx.font = "20px 'Orbitron', sans-serif";
-        this.ctx.fillText("PLAYER 2", this.width * 0.75, 180);
+        this.ctx.fillText("PLAYER 2", this.width * 0.75, 150);
 
         // Class Name
         this.ctx.shadowColor = "#f0f";
-        this.ctx.shadowBlur = 15;
-        this.ctx.font = "bold 36px 'Orbitron', sans-serif";
+        this.ctx.shadowBlur = 20;
+        this.ctx.font = "bold 40px 'Orbitron', sans-serif";
         this.ctx.fillText(
             this.classNames[this.p2SelectionIndex].toUpperCase(),
             this.width * 0.75,
-            230
+            350
         );
         this.ctx.shadowBlur = 0;
 

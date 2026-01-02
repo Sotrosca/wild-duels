@@ -138,36 +138,60 @@ export class Mage extends Character {
 
     attack(game) {
         super.attack(game);
-        let velocity = { x: 0, y: 0 };
-        let startX = this.x;
-        let startY = this.y;
+
+        const speed = 12;
+        let angle = 0;
+        // Start from center
+        let startX = this.x + this.width / 2;
+        let startY = this.y + this.height / 2;
 
         switch (this.facing) {
             case "right":
-                velocity.x = 12;
-                startX += this.width;
-                startY += 20;
+                angle = 0;
+                startX += this.width / 2 + 10;
                 break;
             case "left":
-                velocity.x = -12;
-                startX -= 20;
-                startY += 20;
+                angle = Math.PI;
+                startX -= this.width / 2 + 10;
                 break;
             case "up":
-                velocity.y = -12;
-                startX += 10;
-                startY -= 20;
+                angle = -Math.PI / 2;
+                startY -= this.height / 2 + 10;
                 break;
             case "down":
-                velocity.y = 12;
-                startX += 10;
-                startY += this.height;
+                angle = Math.PI / 2;
+                startY += this.height / 2 + 10;
+                break;
+            case "up-right":
+                angle = -Math.PI / 4;
+                startX += this.width / 2;
+                startY -= this.height / 2;
+                break;
+            case "up-left":
+                angle = (-3 * Math.PI) / 4;
+                startX -= this.width / 2;
+                startY -= this.height / 2;
+                break;
+            case "down-right":
+                angle = Math.PI / 4;
+                startX += this.width / 2;
+                startY += this.height / 2;
+                break;
+            case "down-left":
+                angle = (3 * Math.PI) / 4;
+                startX -= this.width / 2;
+                startY += this.height / 2;
                 break;
         }
 
+        const velocity = {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed,
+        };
+
         const projectile = new Fireball(
-            startX,
-            startY,
+            startX - 12.5, // Center the projectile (width 25)
+            startY - 12.5,
             velocity,
             25, // Larger fireball
             25,
@@ -206,10 +230,10 @@ export class Mage extends Character {
         ctx.fillStyle = "white";
         let ex = 0,
             ey = 0;
-        if (this.facing === "right") ex = 8;
-        else if (this.facing === "left") ex = -8;
-        else if (this.facing === "up") ey = -8;
-        else if (this.facing === "down") ey = 8;
+        if (this.facing.includes("right")) ex = 8;
+        if (this.facing.includes("left")) ex = -8;
+        if (this.facing.includes("up")) ey = -8;
+        if (this.facing.includes("down")) ey = 8;
 
         ctx.beginPath();
         ctx.arc(cx + ex, cy + ey, 4, 0, Math.PI * 2);
@@ -305,6 +329,8 @@ export class Warrior extends Character {
         this.dashCooldown = this.dashMaxCooldown;
 
         const dashSpeed = 15;
+        const diagSpeed = dashSpeed * 0.707;
+
         switch (this.facing) {
             case "right":
                 this.velocity.x = dashSpeed;
@@ -321,6 +347,22 @@ export class Warrior extends Character {
             case "down":
                 this.velocity.x = 0;
                 this.velocity.y = dashSpeed;
+                break;
+            case "up-right":
+                this.velocity.x = diagSpeed;
+                this.velocity.y = -diagSpeed;
+                break;
+            case "up-left":
+                this.velocity.x = -diagSpeed;
+                this.velocity.y = -diagSpeed;
+                break;
+            case "down-right":
+                this.velocity.x = diagSpeed;
+                this.velocity.y = diagSpeed;
+                break;
+            case "down-left":
+                this.velocity.x = -diagSpeed;
+                this.velocity.y = diagSpeed;
                 break;
         }
     }
@@ -490,6 +532,22 @@ export class Elf extends Character {
                     vx = Math.sin(angle) * speed;
                     vy = Math.cos(angle) * speed;
                     break;
+                case "up-right":
+                    vx = Math.cos(angle - Math.PI / 4) * speed;
+                    vy = Math.sin(angle - Math.PI / 4) * speed;
+                    break;
+                case "up-left":
+                    vx = Math.cos(angle - (3 * Math.PI) / 4) * speed;
+                    vy = Math.sin(angle - (3 * Math.PI) / 4) * speed;
+                    break;
+                case "down-right":
+                    vx = Math.cos(angle + Math.PI / 4) * speed;
+                    vy = Math.sin(angle + Math.PI / 4) * speed;
+                    break;
+                case "down-left":
+                    vx = Math.cos(angle + (3 * Math.PI) / 4) * speed;
+                    vy = Math.sin(angle + (3 * Math.PI) / 4) * speed;
+                    break;
             }
 
             const projectile = new Arrow(
@@ -523,6 +581,10 @@ export class Elf extends Character {
         if (this.facing === "right") angle = Math.PI / 2;
         else if (this.facing === "left") angle = -Math.PI / 2;
         else if (this.facing === "down") angle = Math.PI;
+        else if (this.facing === "up-right") angle = Math.PI / 4;
+        else if (this.facing === "up-left") angle = -Math.PI / 4;
+        else if (this.facing === "down-right") angle = (3 * Math.PI) / 4;
+        else if (this.facing === "down-left") angle = -(3 * Math.PI) / 4;
         // up is 0 (default)
 
         ctx.rotate(angle);
@@ -594,6 +656,10 @@ export class Knight extends Character {
         if (this.facing === "right") angle = -Math.PI / 2;
         else if (this.facing === "left") angle = Math.PI / 2;
         else if (this.facing === "up") angle = Math.PI;
+        else if (this.facing === "up-right") angle = -(3 * Math.PI) / 4;
+        else if (this.facing === "up-left") angle = (3 * Math.PI) / 4;
+        else if (this.facing === "down-right") angle = -Math.PI / 4;
+        else if (this.facing === "down-left") angle = Math.PI / 4;
         // down is 0 (default for shield shape pointing down)
 
         ctx.rotate(angle);
